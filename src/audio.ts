@@ -4,5 +4,5 @@ import "p5/lib/addons/p5.sound";
 export let audio: p5.SoundFile;
 
 export const preload = () => {
-    audio = p.loadSound("...wav");
+    audio = p.loadSound("./public/...wav"); // does this work?
 };
