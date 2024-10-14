@@ -35,7 +35,8 @@ export const setup = () => {
 
     control.setup();
 
-    Matter.Common.setDecomp(decomp);
+    // FIXME: cant decomp for some reason
+    // Matter.Common.setDecomp(decomp); 
 
     engine = Engine.create();
 
