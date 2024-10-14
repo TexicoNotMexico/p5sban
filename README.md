@@ -6,5 +6,5 @@
     -   by 全て語り手の所為です。
     -   SIL Open Font License
 
--   [..](https://www.youtube.com/watch?v=7CUpc5K1li4) (`public\...wav`)
+-   [..](https://www.youtube.com/watch?v=7CUpc5K1li4) (`public\period2.wav`)
     -   by 全てあなたの所為です。
