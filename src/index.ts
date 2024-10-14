@@ -1,5 +1,5 @@
 import Matter, { Engine, World, Bodies } from "matter-js";
-import * as decomp from "poly-decomp-es";
+// import * as decomp from "poly-decomp-es";
 import * as constants from "./constants";
 import * as fonts from "./fonts";
 import * as audio from "./audio";
