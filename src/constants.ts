@@ -32,4 +32,7 @@ export const solidLyrics = "全てmatter.jsの所為です。";
 export const lyricsSize = 80;
 
 export const startTime = 188;
-export const endTime = 210;
+export const endTime = 214;
+
+export const startTimeOffset = 8;
+export const solidBodyStopTimeOffset = 2;

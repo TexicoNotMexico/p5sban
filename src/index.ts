@@ -1,5 +1,5 @@
 import Matter, { Engine, World, Bodies } from "matter-js";
-// import * as decomp from "poly-decomp-es";
+import * as decomp from "poly-decomp-es";
 import * as constants from "./constants";
 import * as fonts from "./fonts";
 import * as audio from "./audio";
@@ -11,8 +11,6 @@ let engine: Matter.Engine;
 let fallingLyrics: string[];
 let fallingBodies: { body: Matter.Body; isAdded: boolean }[] = [];
 let solidBody: Matter.Body;
-let solidLyricsPoints: any[];
-let solidLyricsVertices: Matter.Vector[];
 
 export const preload = () => {
     fonts.fontPreload();
@@ -36,7 +34,7 @@ export const setup = () => {
     control.setup();
 
     // FIXME: cant decomp for some reason
-    // Matter.Common.setDecomp(decomp); 
+    Matter.Common.setDecomp(decomp);
 
     engine = Engine.create();
 
@@ -44,13 +42,16 @@ export const setup = () => {
         position: { x: 0, y: 0 },
     });
 
-    solidLyricsPoints = fonts.genzenFont.textToPoints(constants.solidLyrics, 0, 0, constants.lyricsSize);
-
-    solidLyricsVertices = Matter.Vertices.create(solidLyricsPoints, solidBody);
-
-    solidBody = Bodies.fromVertices(0, 0, [Matter.Vertices.clockwiseSort(solidLyricsVertices.flat())], {
-        isStatic: true,
-    });
+    solidBody = Bodies.fromVertices(
+        0,
+        constants.canvasHeight / 2 + constants.canvasHeight / 5,
+        [
+            Matter.Vertices.clockwiseSort(
+                fonts.genzenFont.textToPoints(constants.solidLyrics, 0, 0, constants.lyricsSize).flat()
+            ),
+        ],
+        { isStatic: true }
+    );
     World.add(engine.world, [solidBody]);
 
     fallingLyrics = constants.fallingLyrics.replace(/\r?\n/g, "").split("").reverse();
@@ -58,8 +59,8 @@ export const setup = () => {
     fallingBodies = fallingLyrics.map((lyric) => ({
         body: Bodies.fromVertices(
             p.random(-300, 300),
-            -((3 * constants.canvasHeight) / 4),
-            fonts.genzenFont.textToPoints(lyric, 0, 0, constants.lyricsSize)
+            -(constants.canvasHeight / 2 + p.random(0, constants.canvasHeight / 3)),
+            [Matter.Vertices.clockwiseSort(fonts.genzenFont.textToPoints(lyric, 0, 0, constants.lyricsSize).flat())]
         ),
         isAdded: false,
     }));
@@ -83,25 +84,28 @@ export const draw = () => {
                     p.lerp(
                         constants.startTime,
                         constants.endTime,
-                        EasingFunctions.easeInOutQuad(p.norm(idx, 0, arr.length - 1))
+                        EasingFunctions.easeInQuad(p.norm(idx, 0, arr.length - 1))
                     ) < time.currentTime()
                 ) {
+                    Matter.Body.applyForce(body, body.position, { x: p.random(-0.04, 0.04), y: 0.15 });
+                    Matter.Body.rotate(body, p.random(-p.PI, p.PI));
                     World.add(engine.world, [body]);
                     arr[idx].isAdded = true;
+                    console.log(`${fallingLyrics[idx]} added`);
                 }
             } else {
-                p.push();
-                {
-                    p.fill(128);
-                    p.beginShape();
-                    {
-                        for (let point of body.vertices) {
-                            p.vertex(point.x, point.y);
-                        }
-                    }
-                    p.endShape(p.CLOSE);
-                }
-                p.pop();
+                // p.push();
+                // {
+                //     p.fill(128);
+                //     p.beginShape();
+                //     {
+                //         for (let point of body.vertices) {
+                //             p.vertex(point.x, point.y);
+                //         }
+                //     }
+                //     p.endShape(p.CLOSE);
+                // }
+                // p.pop();
                 p.push();
                 {
                     p.fill(255);
@@ -116,19 +120,34 @@ export const draw = () => {
         });
     }
 
-    p.push();
-    {
-        p.strokeWeight(3);
-        p.fill(128);
-        p.beginShape();
-        {
-            for (let point of solidBody.vertices) {
-                p.vertex(point.x, point.y);
-            }
-        }
-        p.endShape(p.CLOSE);
-    }
-    p.pop();
+    Matter.Body.setPosition(solidBody, {
+        x: 0,
+        y: p.lerp(
+            constants.canvasHeight / 2 + constants.canvasHeight / 5,
+            0,
+            p.min(
+                p.norm(
+                    time.currentTime(),
+                    constants.startTime - constants.startTimeOffset,
+                    constants.startTime - constants.solidBodyStopTimeOffset
+                ),
+                1
+            )
+        ),
+    });
+
+    // p.push();
+    // {
+    //     p.fill(128);
+    //     p.beginShape();
+    //     {
+    //         for (let point of solidBody.vertices) {
+    //             p.vertex(point.x, point.y);
+    //         }
+    //     }
+    //     p.endShape(p.CLOSE);
+    // }
+    // p.pop();
     p.push();
     {
         p.fill(255);
